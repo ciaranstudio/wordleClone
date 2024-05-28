@@ -85,7 +85,7 @@ const useWordle = (solution, toggleNewWord) => {
   };
 
   // handle keyup event & track current guess
-  // if user presses enter, add the new guess
+  // if user presses enter and the end modal is not showing, add the new guess
   const handleKeyup = ({ key }) => {
     if (key === "Enter") {
       if (showModal) {

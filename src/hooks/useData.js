@@ -14,7 +14,6 @@ const useData = () => {
     fetch("http://localhost:3000/solutions")
       .then((res) => res.json())
       .then((json) => {
-        // random into between 0 & 14
         console.log("json loaded: ", json);
         setJsonLoaded(json);
         toggleNewWord();
@@ -27,6 +26,7 @@ const useData = () => {
 
   useEffect(() => {
     if (jsonLoaded) {
+      // random into between 0 & 14
       const randomSolution =
         jsonLoaded[Math.floor(Math.random() * jsonLoaded.length)];
       if (!solutionsUsed.includes(randomSolution.word)) {
