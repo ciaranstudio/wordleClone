@@ -1,14 +1,12 @@
 import React, { useEffect } from "react";
 import useWordle from "../hooks/useWordle";
-import useData from "../hooks/useData";
+// import useData from "../hooks/useData";
 import Grid from "./Grid";
 import Keypad from "./Keypad";
 import keys from "../constants/keys";
 import Modal from "./Modal";
 
 export default function Wordle() {
-  const { solution, toggleNewWord } = useData();
-
   const {
     currentGuess,
     guesses,
@@ -19,7 +17,8 @@ export default function Wordle() {
     resetGame,
     showModal,
     setShowModal,
-  } = useWordle(solution, toggleNewWord);
+    solution,
+  } = useWordle();
 
   useEffect(() => {
     window.addEventListener("keyup", handleKeyup);

@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const useWordle = (solution, toggleNewWord) => {
+const useWordle = () => {
+  const [jsonLoaded, setJsonLoaded] = useState(null);
+  const [solution, setSolution] = useState(null);
+  const [solutionToggle, setSolutionToggle] = useState(false);
+  const [solutionsUsed, setSolutionsUsed] = useState([]);
+
   const [turn, setTurn] = useState(0);
   const [currentGuess, setCurrentGuess] = useState("");
   const [guesses, setGuesses] = useState([...Array(6)]);
@@ -9,8 +14,44 @@ const useWordle = (solution, toggleNewWord) => {
   const [usedKeys, setUsedKeys] = useState({});
   const [showModal, setShowModal] = useState(false);
 
+  const toggleNewWord = () => {
+    setSolutionToggle(!solutionToggle);
+  };
+
+  const getJsonData = () => {
+    fetch("http://localhost:3000/solutions")
+      .then((res) => res.json())
+      .then((json) => {
+        console.log("json loaded: ", json);
+        setJsonLoaded(json);
+        toggleNewWord();
+      });
+  };
+
+  useEffect(() => {
+    if (!jsonLoaded) getJsonData();
+  }, [jsonLoaded]);
+
+  useEffect(() => {
+    if (jsonLoaded) {
+      const randomSolution =
+        jsonLoaded[Math.floor(Math.random() * jsonLoaded.length)];
+      if (!solutionsUsed.includes(randomSolution.word)) {
+        setSolution(randomSolution.word);
+        setSolutionsUsed((oldArray) => [...oldArray, randomSolution.word]);
+      } else {
+        if (solutionsUsed.length === jsonLoaded.length) {
+          setSolutionsUsed([]);
+        } else toggleNewWord();
+      }
+    }
+  }, [solutionToggle]);
+
+  useEffect(() => {
+    console.log("Solutions used list: ", solutionsUsed);
+  }, [solutionsUsed]);
+
   // format a guess into an array of letter objects
-  // e.g. [{key: 'a', color: 'yellow'}]
   const formatGuess = () => {
     let solutionArray = [...solution];
     let formattedGuess = [...currentGuess].map((l) => {
@@ -133,6 +174,7 @@ const useWordle = (solution, toggleNewWord) => {
     resetGame,
     showModal,
     setShowModal,
+    solution,
   };
 };
 

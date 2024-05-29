@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 
 const useData = () => {
-  const [solutionToggle, setSolutionToggle] = useState(false);
   const [jsonLoaded, setJsonLoaded] = useState(null);
   const [solution, setSolution] = useState(null);
+  const [solutionToggle, setSolutionToggle] = useState(false);
   const [solutionsUsed, setSolutionsUsed] = useState([]);
 
   const toggleNewWord = () => {
@@ -26,7 +26,6 @@ const useData = () => {
 
   useEffect(() => {
     if (jsonLoaded) {
-      // random into between 0 & 14
       const randomSolution =
         jsonLoaded[Math.floor(Math.random() * jsonLoaded.length)];
       if (!solutionsUsed.includes(randomSolution.word)) {
