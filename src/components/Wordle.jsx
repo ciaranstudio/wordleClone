@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import useWordle from "../hooks/useWordle";
-// import useData from "../hooks/useData";
 import Grid from "./Grid";
 import Keypad from "./Keypad";
 import keys from "../constants/keys";
