@@ -1,12 +1,6 @@
 import React from "react";
 
-export default function Modal({
-  isCorrect,
-  solution,
-  turn,
-  toggleNewWord,
-  resetGame,
-}) {
+export default function Modal({ isCorrect, solution, turn, resetGame }) {
   const startNewGame = () => {
     resetGame();
   };

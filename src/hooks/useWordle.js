@@ -1,86 +1,58 @@
 import { useState, useEffect } from "react";
+import getData from "../utils/getData";
+import getSolution from "../utils/getSolution";
+import formatGuess from "../utils/formatGuess";
 
 const useWordle = () => {
+  const DATA_URL = "http://localhost:3000/solutions";
+
   const [jsonLoaded, setJsonLoaded] = useState(null);
   const [solution, setSolution] = useState(null);
-  const [solutionToggle, setSolutionToggle] = useState(false);
   const [solutionsUsed, setSolutionsUsed] = useState([]);
+  const [usedKeys, setUsedKeys] = useState({});
 
   const [turn, setTurn] = useState(0);
   const [currentGuess, setCurrentGuess] = useState("");
   const [guesses, setGuesses] = useState([...Array(6)]);
   const [history, setHistory] = useState([]);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [usedKeys, setUsedKeys] = useState({});
+
+  const [solutionToggle, setSolutionToggle] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   const toggleNewWord = () => {
     setSolutionToggle(!solutionToggle);
   };
 
-  const getJsonData = () => {
-    fetch("http://localhost:3000/solutions")
-      .then((res) => res.json())
-      .then((json) => {
-        console.log("json loaded: ", json);
-        setJsonLoaded(json);
-        toggleNewWord();
-      });
-  };
-
+  // get JSON data from backend
   useEffect(() => {
-    if (!jsonLoaded) getJsonData();
-  }, [jsonLoaded]);
+    const fetchData = async () => {
+      const data = await getData(DATA_URL);
+      setJsonLoaded(data);
+    };
+    fetchData();
+  }, []);
 
+  // get solution for current game
   useEffect(() => {
     if (jsonLoaded) {
-      const randomSolution =
-        jsonLoaded[Math.floor(Math.random() * jsonLoaded.length)];
-      if (!solutionsUsed.includes(randomSolution.word)) {
-        setSolution(randomSolution.word);
-        setSolutionsUsed((oldArray) => [...oldArray, randomSolution.word]);
+      if (solutionsUsed.length === jsonLoaded.length) {
+        const newSolution = getSolution(jsonLoaded, []);
+        setSolution(newSolution);
+        setSolutionsUsed([newSolution]);
       } else {
-        if (solutionsUsed.length === jsonLoaded.length) {
-          setSolutionsUsed([]);
-        } else toggleNewWord();
+        const newSolution = getSolution(jsonLoaded, solutionsUsed);
+        setSolution(newSolution);
+        setSolutionsUsed((oldArray) => [...oldArray, newSolution]);
       }
     }
-  }, [solutionToggle]);
-
-  useEffect(() => {
-    console.log("Solutions used list: ", solutionsUsed);
-  }, [solutionsUsed]);
-
-  // format a guess into an array of letter objects
-  const formatGuess = () => {
-    let solutionArray = [...solution];
-    let formattedGuess = [...currentGuess].map((l) => {
-      return { key: l, color: "grey" };
-    });
-    // find any green Letters
-    formattedGuess.forEach((l, i) => {
-      if (solution[i] === l.key) {
-        formattedGuess[i].color = "green";
-        solutionArray[i] = null;
-      }
-    });
-    // find any yellow Letters
-    formattedGuess.forEach((l, i) => {
-      if (solutionArray.includes(l.key) && l.color !== "green") {
-        formattedGuess[i].color = "yellow";
-        solutionArray[solutionArray.indexOf(l.key)] = null;
-      }
-    });
-    return formattedGuess;
-  };
+  }, [jsonLoaded, solutionToggle]);
 
   // add a new guess to the guesses state
-  // update the isCorrect state if the guess is correct
   // add one to the turn state
+  // update usedKeys list
+  // reset current guess value
   const addNewGuess = (formattedGuess) => {
-    if (currentGuess === solution) {
-      setIsCorrect(true);
-    }
     setGuesses((prevGuesses) => {
       let newGuesses = [...prevGuesses];
       newGuesses[turn] = formattedGuess;
@@ -127,6 +99,7 @@ const useWordle = () => {
 
   // handle keyup event & track current guess
   // if user presses enter and the end modal is not showing, add the new guess
+  // update the isCorrect state if the guess is correct
   const handleKeyup = ({ key }) => {
     if (key === "Enter") {
       if (showModal) {
@@ -148,9 +121,12 @@ const useWordle = () => {
           console.log("Word must be 5 chars.");
           return;
         }
-        const formatted = formatGuess();
+        const formatted = formatGuess(currentGuess, solution);
         addNewGuess(formatted);
-        console.log(formatted);
+        if (currentGuess === solution) {
+          setIsCorrect(true);
+        }
+        // console.log(formatted);
       }
     }
     if (key === "Backspace") {
