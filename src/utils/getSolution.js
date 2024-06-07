@@ -1,4 +1,5 @@
 export default function getSolution(jsonLoaded, solutionsUsed) {
+  // console.log("solutions used: ", solutionsUsed);
   function filterUsedWords(item) {
     if (!solutionsUsed.includes(item.word)) {
       return true;
@@ -7,12 +8,12 @@ export default function getSolution(jsonLoaded, solutionsUsed) {
   }
 
   const unusedWords = jsonLoaded.filter(filterUsedWords);
-  console.log("remaining words: ", unusedWords);
+  // console.log("remaining words: ", unusedWords);
 
   const randomSolution =
     unusedWords[Math.floor(Math.random() * unusedWords.length)];
 
   const solutionWord = randomSolution.word;
-  console.log(solutionWord);
+  // console.log(solutionWord);
   return solutionWord;
 }

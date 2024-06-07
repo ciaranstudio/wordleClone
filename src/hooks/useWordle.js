@@ -29,6 +29,7 @@ const useWordle = () => {
     const fetchData = async () => {
       const data = await getData(DATA_URL);
       setJsonLoaded(data);
+      // console.log("fetched data[1]: ", data[1]);
     };
     fetchData();
   }, []);
